@@ -33,6 +33,8 @@ public class RunMe {
 				stop = true;
 				robot.reset();
 			}
+			Action action = selection.getRandomAction(robot, maze);
+			robot.doAction(action, maze);
 			//TODO figure out a stopping criterion			
 		}
 
