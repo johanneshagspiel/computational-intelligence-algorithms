@@ -29,7 +29,10 @@ public class RunMe {
 		//keep learning until you decide to stop
 		while (!stop) {
 			//TODO implement the action selection and learning cycle
-			
+			if(robot.nrOfActionsSinceReset > 30000) {
+				stop = true;
+				robot.reset();
+			}
 			//TODO figure out a stopping criterion			
 		}
 
