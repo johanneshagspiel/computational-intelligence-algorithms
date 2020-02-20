@@ -25,17 +25,18 @@ public class RunMe {
 		QLearning learn=new MyQLearning();
 		
 		boolean stop=false;
-		
+		int numberOfTotalSteps = 0;
 		//keep learning until you decide to stop
 		while (!stop) {
 			//TODO implement the action selection and learning cycle
-			if(robot.nrOfActionsSinceReset > 30000) {
+			numberOfTotalSteps++;
+			if(numberOfTotalSteps > 30000) {
 				stop = true;
-				robot.reset();
+			} else {
+				Action action = selection.getRandomAction(robot, maze);
+				robot.doAction(action, maze);
+				//TODO figure out a stopping criterion
 			}
-			Action action = selection.getRandomAction(robot, maze);
-			robot.doAction(action, maze);
-			//TODO figure out a stopping criterion			
 		}
 
 	}
