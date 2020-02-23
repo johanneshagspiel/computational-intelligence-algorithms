@@ -8,10 +8,6 @@ import tudelft.rl.State;
 
 public class MyQLearning extends QLearning {
 
-	public double alfa = 0.7;
-	public double gamma = 0.9;
-	public double epsilon = 0.1;
-
 	@Override
 	public void updateQ(State s, Action a, double r, State s_next, ArrayList<Action> possibleActions, double alfa, double gamma) {
 		double maxval = Integer.MIN_VALUE;
