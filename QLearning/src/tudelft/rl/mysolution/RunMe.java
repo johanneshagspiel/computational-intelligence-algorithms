@@ -37,7 +37,7 @@ public class RunMe {
 			if(numberOfTotalSteps > 30000) {
 				stop = true;
 			} else {
-				Action action = selection.getRandomAction(robot, maze);
+				Action action = selection.getEGreedyAction(robot, maze, learn, epsilon);
 				State prevstate = robot.getState(maze);
 				robot.doAction(action, maze);
 				learn.updateQ(prevstate, action, maze.getR(robot.getState(maze)), robot.getState(maze), maze.getValidActions(robot), alfa, gamma);

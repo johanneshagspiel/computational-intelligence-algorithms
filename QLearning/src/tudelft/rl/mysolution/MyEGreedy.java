@@ -18,13 +18,14 @@ public class MyEGreedy extends EGreedy {
 
 		State currentState = r.getState(m);
 		ArrayList<Action> actionList = m.getValidActions(r);
-		Double maxQ = Double.MIN_VALUE;
+		double maxQ = - Double.MAX_VALUE;
 		ArrayList<Action> tempActionList = new ArrayList<>();
 
 		for(Action action : actionList) {
 			double tempResult = q.getQ(currentState, action);
 			if(tempResult > maxQ)
 			{
+				maxQ = tempResult;
 				tempActionList = new ArrayList<>();
 				tempActionList.add(action);
 			}
