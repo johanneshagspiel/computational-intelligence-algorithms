@@ -6,11 +6,15 @@ import tudelft.rl.*;
 
 public class RunMe {
 
+	public static double alfa = 0.7;
+	public static double gamma = 0.9;
+	public static double epsilon = 0.1;
+
 	public static void main(String[] args) {
 		
 		//load the maze
 		//TODO replace this with the location to your maze on your file system
-		Maze maze = new Maze(new File("C:\\data\\development\\github\\QLearning\\data\\toy_maze.txt"));
+		Maze maze = new Maze(new File("QLearning\\data\\toy_maze.txt"));
 		
 		//Set the reward at the bottom right to 10
 		maze.setR(maze.getState(9, 9), 10);
@@ -33,12 +37,13 @@ public class RunMe {
 			if(numberOfTotalSteps > 30000) {
 				stop = true;
 			} else {
-				Action action = selection.getRandomAction(robot, maze);
+				Action action = selection.getEGreedyAction(robot, maze, learn, epsilon);
+				State prevstate = robot.getState(maze);
 				robot.doAction(action, maze);
-				//TODO figure out a stopping criterion
+				learn.updateQ(prevstate, action, maze.getR(robot.getState(maze)), robot.getState(maze), maze.getValidActions(robot), alfa, gamma);
+				if (maze.isInFinalState(robot)) robot.reset();
 			}
 		}
-
 	}
 
 }

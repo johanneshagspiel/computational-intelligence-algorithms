@@ -1,2 +1,4 @@
+bin/**
 .idea/**
 QLearning/bin/**
+QLearning/.idea/**

@@ -1,29 +1,56 @@
 package tudelft.rl.mysolution;
 
-import tudelft.rl.Action;
-import tudelft.rl.Agent;
-import tudelft.rl.EGreedy;
-import tudelft.rl.Maze;
-import tudelft.rl.QLearning;
+import tudelft.rl.*;
+import java.util.*;
 
 public class MyEGreedy extends EGreedy {
 
 	@Override
 	public Action getRandomAction(Agent r, Maze m) {
-		//TODO to select an action at random in State s
-		return null;
+		ArrayList<Action> actionList = m.getValidActions(r);
+		Random random = new Random();
+		Action tempAction = actionList.get(random.nextInt(actionList.size()));
+		return tempAction;
 	}
 
 	@Override
 	public Action getBestAction(Agent r, Maze m, QLearning q) {
-		//TODO to select the best possible action currently known in State s.
-		return null;
+
+		State currentState = r.getState(m);
+		ArrayList<Action> actionList = m.getValidActions(r);
+		double maxQ = - Double.MAX_VALUE;
+		ArrayList<Action> tempActionList = new ArrayList<>();
+
+		for(Action action : actionList) {
+			double tempResult = q.getQ(currentState, action);
+			if(tempResult > maxQ)
+			{
+				maxQ = tempResult;
+				tempActionList = new ArrayList<>();
+				tempActionList.add(action);
+			}
+			else if (tempResult == maxQ)
+			{
+				tempActionList.add(action);
+			}
+		}
+		Random random = new Random();
+		Action tempAction = tempActionList.get(random.nextInt(tempActionList.size()));
+		return tempAction;
 	}
 
 	@Override
 	public Action getEGreedyAction(Agent r, Maze m, QLearning q, double epsilon) {
-		//TODO to select between random or best action selection based on epsilon.
-		return null;
-	}
+		Random random = new Random();
+		Double randomDouble = random.nextDouble();
 
+		if(randomDouble > epsilon)
+		{
+			return getBestAction(r,m ,q);
+		}
+		else
+		{
+			return getRandomAction(r, m);
+		}
+	}
 }
