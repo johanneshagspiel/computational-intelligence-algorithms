@@ -15,7 +15,6 @@ public class MyQLearning extends QLearning {
 			maxval = Double.max(maxval, getQ(s_next, act));
 		}
 		double val = getQ(s, a) + alfa * (r + gamma * maxval - getQ(s, a));
-//		System.out.println(s + " (" + s.type + ") " + a.id + " => " + s_next + " (" + s_next.type + ") ");
 		setQ(s, a, val);
 	}
 
