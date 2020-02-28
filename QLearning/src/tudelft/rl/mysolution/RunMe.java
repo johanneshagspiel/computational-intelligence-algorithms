@@ -18,7 +18,7 @@ public class RunMe {
 
         //load the maze
         //TODO replace this with the location to your maze on your file system
-        Maze maze = new Maze(new File("QLearning\\data\\easy_maze.txt"));
+        Maze maze = new Maze(new File("QLearning\\data\\toy_maze.txt"));
 
         //Set the reward at the bottom right to 10
         maze.setR(maze.getState(9, 9), 10);
@@ -38,7 +38,7 @@ public class RunMe {
         while (!stop) {
             //TODO implement the action selection and learning cycle
             numberOfTotalSteps++;
-            if (numberOfTotalSteps > 300000) {
+            if (numberOfTotalSteps > 30000) {
                 stop = true;
             } else {
                 Action action = selection.getEGreedyAction(robot, maze, learn, epsilon /*> 0.7 ? 1 : epsilon*/);
