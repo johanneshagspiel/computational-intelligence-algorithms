@@ -35,4 +35,12 @@ public class Agent {
 		y=startY;
 		nrOfActionsSinceReset=0;
 	}
+
+	public boolean checkForReset() {
+//		if (x == 24 && y == 14) reset();
+		if (x == 9 && y == 9) reset();
+		else if (x == 9 && y == 0) reset();
+		else return false;
+		return true;
+	}
 }

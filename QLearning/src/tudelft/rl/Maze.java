@@ -93,8 +93,4 @@ public class Maze {
 		//use this to find the current state of the agent, or use Agent.getState(Maze m)
 		return states[y][x];
 	}
-
-	public boolean isInFinalState(Agent a) {
-		return (a.x == states[0].length - 1) && (a.y == states.length - 1);
-	}
 }

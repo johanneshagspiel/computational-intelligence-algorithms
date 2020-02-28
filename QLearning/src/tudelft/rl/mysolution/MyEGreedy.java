@@ -1,7 +1,9 @@
 package tudelft.rl.mysolution;
 
 import tudelft.rl.*;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 public class MyEGreedy extends EGreedy {
 
