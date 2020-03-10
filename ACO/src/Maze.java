@@ -31,7 +31,15 @@ public class Maze {
     /**
      * Initialize pheromones to a start value.
      */
-    private void initializePheromones() {}
+    private void initializePheromones() {
+        for(int i = 0; i < width;i++){
+            for(int j = 0; j < length;j++){
+                if(walls[i][j] == 1){
+                    pheromones[i][j] = 1;
+                }
+            }
+        }
+    }
 
     /**
      * Reset the maze for a new shortest path problem.
@@ -87,7 +95,14 @@ public class Maze {
      * @return the pheromones of the neighbouring positions.
      */
     public SurroundingPheromone getSurroundingPheromone(Coordinate position) {
-        return null;
+        Coordinate checkNorth = new Coordinate(position.getX(), position.getY() + 1);
+        Coordinate checkSouth = new Coordinate(position.getX(), position.getY() - 1);
+        Coordinate checkEast = new Coordinate(position.getX() - 1, position.getY());
+        Coordinate checkWest = new Coordinate(position.getX() + 1, position.getY());
+        SurroundingPheromone sp = new SurroundingPheromone(getPheromone(checkNorth),
+                getPheromone(checkEast), getPheromone(checkSouth), getPheromone(checkWest));
+
+        return sp;
     }
 
     /**
@@ -96,7 +111,7 @@ public class Maze {
      * @return pheromone at point
      */
     private double getPheromone(Coordinate pos) {
-        return 0;
+        return pheromones[pos.getX()][pos.getY()];
     }
 
 
