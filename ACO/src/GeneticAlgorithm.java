@@ -68,6 +68,24 @@ public class GeneticAlgorithm {
         return child;
     }
 
+    private void mutate(int[] route, double probMutation) {
+
+        Random random = new Random();
+        double tempResult = random.nextDouble();
+
+        if(tempResult >= probMutation)
+        {
+            int geneSection1 = random.nextInt(route.length);
+            int geneSection2 = random.nextInt(route.length);
+            int start = Math.min(geneSection1,geneSection2);
+            int end = Math.max(geneSection1,geneSection2);
+
+            int tempGene1 = route[start];
+            route[start] = route[end];
+            route[end] = tempGene1;
+        }
+    }
+
 
     /**
      * This method should solve the TSP. 
