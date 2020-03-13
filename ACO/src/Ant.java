@@ -31,8 +31,26 @@ public class Ant {
      * @return The route the ant found through the maze.
      */
     public Route findRoute() {
-        Route route = new Route(start);
-        return route;
+        return findRoute(30000);
     }
+    public Route findRoute(int maxSteps) {
+        Route route = new Route(start);
+        int steps = 0;
+        while(steps++ < maxSteps) {
+            SurroundingPheromone sp = maze.getSurroundingPheromone(currentPosition);
+            double choice = sp.getTotalSurroundingPheromone() * new Random().nextDouble();
+            int idx = 0;
+            while (choice >= sp.get(Direction.values()[idx])) {
+                choice -= sp.get(Direction.values()[idx++]);
+            }
+            Direction d = Direction.values()[idx];
+            route.add(d);
+            if(currentPosition.equals(end))
+                return route;
+        }
+        return null;
+    }
+
+
 }
 

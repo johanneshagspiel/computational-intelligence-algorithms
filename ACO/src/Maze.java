@@ -70,7 +70,13 @@ public class Maze {
      * Evaporate pheromone
      * @param rho evaporation factor
      */
-    public void evaporate(double rho) {}
+    public void evaporate(double rho) {
+        for(int i = 0; i < pheromones.length; i++){
+            for(int j = 0; j < pheromones[0].length; i++){
+                pheromones[i][j] *= (1-rho);
+            }
+        }
+     }
 
     /**
      * Width getter
