@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * TSP problem solver using genetic algorithms.
@@ -33,6 +34,58 @@ public class GeneticAlgorithm {
             chromosome[i] = swap;
         }
     }
+
+    private int[] crossOver(int[] parent1, int[] parent2) {
+
+        assert(parent1.length == parent2.length);
+
+        ArrayList<Integer> childTemp= new ArrayList<Integer>();
+        int[] child = new int[parent1.length];
+
+        Random random = new Random();
+        int geneSection1 = random.nextInt(parent1.length);
+        int geneSection2 = random.nextInt(parent1.length);
+        int start = Math.min(geneSection1,geneSection2);
+        int end = Math.max(geneSection1,geneSection2);
+
+        for(int i = start; i <= end; i++)
+        {
+            childTemp.add(parent1[i]);
+        }
+
+        for(int i = 0; i <= parent2.length; i++)
+        {
+            if(!childTemp.contains(parent2[i]))
+            {
+                childTemp.add(parent2[i]);
+            }
+        }
+
+        for (int i = 0; i < childTemp.size(); i++) {
+            child[i] = childTemp.get(i);
+        }
+
+        return child;
+    }
+
+    private void mutate(int[] route, double probMutation) {
+
+        Random random = new Random();
+        double tempResult = random.nextDouble();
+
+        if(tempResult >= probMutation)
+        {
+            int geneSection1 = random.nextInt(route.length);
+            int geneSection2 = random.nextInt(route.length);
+            int start = Math.min(geneSection1,geneSection2);
+            int end = Math.max(geneSection1,geneSection2);
+
+            int tempGene1 = route[start];
+            route[start] = route[end];
+            route[end] = tempGene1;
+        }
+    }
+
 
     /**
      * This method should solve the TSP. 

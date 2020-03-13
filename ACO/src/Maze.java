@@ -53,7 +53,17 @@ public class Maze {
      * @param r The route of the ants
      * @param Q Normalization factor for amount of dropped pheromone
      */
-    public void addPheromoneRoute(Route r, double Q) {}
+    public void addPheromoneRoute(Route r, double Q) {
+
+        Coordinate currentPosition = r.getStart();
+
+        pheromones[currentPosition.getX()][currentPosition.getX()] += (Q/r.getRoute().size());
+
+        for (Direction direction: r.getRoute()) {
+            currentPosition.add(direction);
+            pheromones[currentPosition.getX()][currentPosition.getX()] += (Q/r.getRoute().size());
+        }
+    }
 
     /**
      * Update pheromones for a list of routes
