@@ -32,11 +32,15 @@ public class Maze {
      * Initialize pheromones to a start value.
      */
     private void initializePheromones() {
+
+        pheromones = new double[width][length];
+
         for(int i = 0; i < width;i++){
             for(int j = 0; j < length;j++){
                 if(walls[i][j] == 1){
                     pheromones[i][j] = 1;
                 }
+                else pheromones[i][j] = 0;
             }
         }
     }
@@ -82,7 +86,7 @@ public class Maze {
      */
     public void evaporate(double rho) {
         for(int i = 0; i < pheromones.length; i++){
-            for(int j = 0; j < pheromones[0].length; i++){
+            for(int j = 0; j < pheromones[i].length; j++){
                 pheromones[i][j] *= (1-rho);
             }
         }
@@ -127,7 +131,9 @@ public class Maze {
      * @return pheromone at point
      */
     private double getPheromone(Coordinate pos) {
-        return pheromones[pos.getX()][pos.getY()];
+        if (pos.getX() >= 0 && pos.getX() < width && pos.getY() >= 0 && pos.getY() < length)
+            return pheromones[pos.getX()][pos.getY()];
+        else return 0;
     }
 
 

@@ -43,15 +43,17 @@ public class AntColonyOptimization {
             ArrayList<Route> updateRoutes = new ArrayList<>();
             Ant[] antArray = new Ant[this.antsPerGen];
 
-            for(int j = 0; j <= antArray.length; j++)
+            for(int j = 0; j < antArray.length; j++)
             {
                 antArray[j] = new Ant(maze, spec);
-            }
-
-            for(int j = 0; j <= this.antsPerGen; j++)
-            {
                 updateRoutes.add(antArray[j].findRoute());
             }
+
+//            for(int j = 0; j < this.antsPerGen; j++)
+//            {
+//                updateRoutes.add(antArray[j].findRoute());
+//            }
+
             maze.evaporate(this.evaporation);
             maze.addPheromoneRoutes(updateRoutes, this.Q);
         }

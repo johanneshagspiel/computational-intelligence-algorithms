@@ -33,6 +33,7 @@ public class Ant {
     public Route findRoute() {
         return findRoute(30000);
     }
+
     public Route findRoute(int maxSteps) {
         Route route = new Route(start);
         int steps = 0;
@@ -48,7 +49,7 @@ public class Ant {
             if(currentPosition.equals(end))
                 return route;
         }
-        return null;
+        return route;
     }
 
 
