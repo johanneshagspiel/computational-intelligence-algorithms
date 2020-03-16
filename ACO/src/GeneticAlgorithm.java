@@ -93,7 +93,7 @@ public class GeneticAlgorithm {
      * @return the optimized product sequence.
      */
     public int[] solveTSP(TSPData pd) {
-        return new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17};
+        return new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
     }
 
     /**
@@ -103,7 +103,7 @@ public class GeneticAlgorithm {
     	//parameters
     	int populationSize = 20;
         int generations = 20;
-        String persistFile = "./tmp/productMatrixDist";
+        String persistFile = "./data/productMatrixDist";
         
         //setup optimization
         TSPData tspData = TSPData.readFromFile(persistFile);
@@ -111,6 +111,6 @@ public class GeneticAlgorithm {
         
         //run optimzation and write to file
         int[] solution = ga.solveTSP(tspData);
-        tspData.writeActionFile(solution, "./data/TSP solution.txt");
+        tspData.writeActionFile(solution, "./data/TSP_solution.txt");
     }
 }
