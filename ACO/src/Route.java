@@ -31,10 +31,10 @@ public class Route implements Serializable {
     }
 
     public Direction pop() {
-        System.out.println(Arrays.toString(route.toArray()));
+        //System.out.println(Arrays.toString(route.toArray()));
         Direction res = route.remove(route.size() - 1);
-        System.out.println(res);
-        System.out.println(Arrays.toString(route.toArray()));
+       // System.out.println(res);
+        //System.out.println(Arrays.toString(route.toArray()));
         return res;
     }
 

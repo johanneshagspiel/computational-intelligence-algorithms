@@ -65,8 +65,10 @@ public class Ant {
                 }
 
                 if (relevantPheromone == 0) {
-                    System.out.println(currentPosition + " is dead end");
+                    //System.out.println(currentPosition + " is dead end");
+
                     currentPosition = currentPosition.subtract(route.pop());
+                    sp = maze.getSurroundingPheromone(currentPosition);
                     DeadEnd = true;
                 } else {
                     DeadEnd = false;
@@ -98,7 +100,7 @@ public class Ant {
             currentPosition = currentPosition.add(taken);
             prevs.add(currentPosition);
             if (currentPosition.equals(end)) {
-                System.out.println("FOUND");
+                //System.out.println("FOUND");
                 return route;
             }
         }
