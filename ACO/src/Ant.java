@@ -44,41 +44,34 @@ public class Ant {
 
     public Route findRoute(int maxSteps) {
         Route route = new Route(start);
-        int currentPositionPointer = route.size();
         int steps = 0;
 
         while(steps++ < maxSteps) {
 
             SurroundingPheromone sp = maze.getSurroundingPheromone(currentPosition);
-            double relevantPheromone = 0;
-            boolean DeadEnd = false;
-            List<Direction> options = new ArrayList<>(4);
+            double relevantPheromone;
+            boolean DeadEnd;
+            List<Direction> options;
 
-            do
-            {
+            do {
+                options = new ArrayList<>(4);
+                relevantPheromone = 0;
                 for (Direction d : Direction.values()) {
 
-                    if (!prevs.contains(currentPosition.add(d))) {
+                    if (!prevs.contains(currentPosition.add(d)) && sp.get(d) > 0) {
                         relevantPheromone += sp.get(d);
                         options.add(d);
                     }
                 }
 
-                if (relevantPheromone == 0)
-                {
-                    options = new ArrayList<>(4);
-                    Direction moveBack = route.getRoute().get(currentPositionPointer);
-                    currentPosition = currentPosition.subtract(moveBack);
-                    route.add(moveBack);
-                    currentPositionPointer--;
+                if (relevantPheromone == 0) {
+                    System.out.println(currentPosition + " is dead end");
+                    currentPosition = currentPosition.subtract(route.pop());
                     DeadEnd = true;
-                }
-                else
-                {
+                } else {
                     DeadEnd = false;
                 }
-            }
-            while (DeadEnd);
+            } while (DeadEnd);
 
 
             double choice = relevantPheromone * rand.nextDouble();
@@ -105,6 +98,7 @@ public class Ant {
             currentPosition = currentPosition.add(taken);
             prevs.add(currentPosition);
             if (currentPosition.equals(end)) {
+                System.out.println("FOUND");
                 return route;
             }
         }
