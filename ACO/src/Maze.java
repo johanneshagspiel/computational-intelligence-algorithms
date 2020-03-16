@@ -61,11 +61,11 @@ public class Maze {
 
         Coordinate currentPosition = r.getStart();
 
-        pheromones[currentPosition.getX()][currentPosition.getX()] += (Q/r.getRoute().size());
+        pheromones[currentPosition.getX()][currentPosition.getY()] += (Q/r.getRoute().size());
 
         for (Direction direction: r.getRoute()) {
-            currentPosition.add(direction);
-            pheromones[currentPosition.getX()][currentPosition.getX()] += (Q/r.getRoute().size());
+            currentPosition = currentPosition.add(direction);
+            pheromones[currentPosition.getX()][currentPosition.getY()] += (Q/r.getRoute().size());
         }
     }
 
@@ -90,7 +90,19 @@ public class Maze {
                 pheromones[i][j] *= (1-rho);
             }
         }
-     }
+    }
+
+    public void evapRoute(Route r, double rho) {
+        Coordinate currentPosition = r.getStart();
+        for (Direction direction: r.getRoute()) {
+            currentPosition = currentPosition.add(direction);
+            pheromones[currentPosition.getX()][currentPosition.getY()] *= rho;
+        }
+    }
+
+    public void setPheromone(Coordinate c, double newVal) {
+        pheromones[c.getX()][c.getY()] = newVal;
+    }
 
     /**
      * Width getter
@@ -115,10 +127,10 @@ public class Maze {
      * @return the pheromones of the neighbouring positions.
      */
     public SurroundingPheromone getSurroundingPheromone(Coordinate position) {
-        Coordinate checkNorth = new Coordinate(position.getX(), position.getY() + 1);
-        Coordinate checkSouth = new Coordinate(position.getX(), position.getY() - 1);
-        Coordinate checkEast = new Coordinate(position.getX() - 1, position.getY());
-        Coordinate checkWest = new Coordinate(position.getX() + 1, position.getY());
+        Coordinate checkNorth = new Coordinate(position.getX(), position.getY() - 1);
+        Coordinate checkSouth = new Coordinate(position.getX(), position.getY() + 1);
+        Coordinate checkEast = new Coordinate(position.getX() + 1, position.getY());
+        Coordinate checkWest = new Coordinate(position.getX() - 1, position.getY());
         SurroundingPheromone sp = new SurroundingPheromone(getPheromone(checkNorth),
                 getPheromone(checkEast), getPheromone(checkSouth), getPheromone(checkWest));
 
