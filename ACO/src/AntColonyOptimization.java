@@ -36,6 +36,7 @@ public class AntColonyOptimization {
      * @return ACO optimized route
      */
     public Route findShortestRoute(PathSpecification spec) {
+
         maze.reset();
 
         ArrayList<Route> routes = null;
@@ -58,11 +59,13 @@ public class AntColonyOptimization {
         Route res = null;
 
         for (Route r : routes) {
+
             if (r.size() < minlen) {
                 minlen = r.size();
                 res = r;
             }
         }
+
         return res;
     }
 
@@ -77,8 +80,8 @@ public class AntColonyOptimization {
         double evap = 0.025;
         
         //construct the optimization objects
-        Maze maze = Maze.createMaze("./data/medium maze.txt");
-        PathSpecification spec = PathSpecification.readCoordinates("./data/medium coordinates.txt");
+        Maze maze = Maze.createMaze("./data/hard maze.txt");
+        PathSpecification spec = PathSpecification.readCoordinates("./data/hard coordinates.txt");
         AntColonyOptimization aco = new AntColonyOptimization(maze, gen, noGen, Q, evap);
         
         //save starting time
@@ -89,9 +92,11 @@ public class AntColonyOptimization {
         
         //print time taken
         System.out.println("Time taken: " + ((System.currentTimeMillis() - startTime) / 1000.0));
+
+        System.out.println(shortestRoute);
         
         //save solution
-        shortestRoute.writeToFile("./data/medium_solution.txt");
+        shortestRoute.writeToFile("./data/hard_solution.txt");
         
         //print route size
         System.out.println("Route size: " + shortestRoute.size());

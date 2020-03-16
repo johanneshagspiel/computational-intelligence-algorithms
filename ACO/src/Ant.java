@@ -44,24 +44,43 @@ public class Ant {
 
     public Route findRoute(int maxSteps) {
         Route route = new Route(start);
+        int currentPositionPointer = route.size();
         int steps = 0;
+
         while(steps++ < maxSteps) {
+
             SurroundingPheromone sp = maze.getSurroundingPheromone(currentPosition);
             double relevantPheromone = 0;
+            boolean DeadEnd = false;
             List<Direction> options = new ArrayList<>(4);
-            for (Direction d : Direction.values()) {
-                if (!prevs.contains(currentPosition.add(d))) {
-                    relevantPheromone += sp.get(d);
-                    options.add(d);
+
+            do
+            {
+                for (Direction d : Direction.values()) {
+
+                    if (!prevs.contains(currentPosition.add(d))) {
+                        relevantPheromone += sp.get(d);
+                        options.add(d);
+                    }
+                }
+
+                if (relevantPheromone == 0)
+                {
+                    options = new ArrayList<>(4);
+                    Direction moveBack = route.getRoute().get(currentPositionPointer);
+                    currentPosition = currentPosition.subtract(moveBack);
+                    route.add(moveBack);
+                    currentPositionPointer--;
+                    DeadEnd = true;
+                }
+                else
+                {
+                    DeadEnd = false;
                 }
             }
-            if (relevantPheromone == 0) {
-                if (options.size() >= 3) { //walls are added to options, so this means dead end
-//                    System.out.println("DEADEND");
-//                    maze.setPheromone(currentPosition, 0);
-                }
-                return null;
-            }
+            while (DeadEnd);
+
+
             double choice = relevantPheromone * rand.nextDouble();
             double max = 0;
             Direction taken = null;
@@ -80,6 +99,8 @@ public class Ant {
                     }
                 }
             }
+
+
             route.add(taken);
             currentPosition = currentPosition.add(taken);
             prevs.add(currentPosition);
