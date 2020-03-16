@@ -2,6 +2,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Class representing a route.
@@ -27,6 +28,14 @@ public class Route implements Serializable {
      */
     public void add(Direction dir) {
         route.add(dir);
+    }
+
+    public Direction pop() {
+        //System.out.println(Arrays.toString(route.toArray()));
+        Direction res = route.remove(route.size() - 1);
+       // System.out.println(res);
+        //System.out.println(Arrays.toString(route.toArray()));
+        return res;
     }
 
 
