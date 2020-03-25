@@ -13,6 +13,10 @@ public class Perceptron {
         }
 
         threshold = ThreadLocalRandom.current().nextDouble(-0.5, 0.5);
+
+//        threshold = 0.19999999999999998;
+//        weightArray[0] = 0.3;
+//        weightArray[1] = -0.1;
     }
 
     public int activation(int[] inputArray)
@@ -48,7 +52,11 @@ public class Perceptron {
         }
 
         for (int i = 0; i < this.weightArray.length; i++) {
-            weightArray[i] += alpha*error*inputArray[i];
+
+            if(weightArray[i] >= 0 || (weightArray[i] <= 0 & error > 0))
+            {
+                weightArray[i] += alpha*error*inputArray[i];
+            }
         }
     }
 
@@ -59,16 +67,24 @@ public class Perceptron {
 
         for (int i = 0; i < epoch; i++) {
 
+            System.out.println("Epoch " + (i+1));
+            double averageError = 0;
+
             for (int iteration = 0; iteration < inputArray.length; iteration++) {
 
                 int result = activation(inputArray[iteration]);
                 int error = desiredResultArray[iteration] - result;
+                averageError += error;
 
                 weightTraining(inputArray[iteration], result, desiredResultArray[iteration], alpha);
 
-                System.out.println("Epoch " + (i+1) + ", Iteration " + (iteration+1) + " Error " + error);
+                System.out.println("Iteration " + (iteration+1) + " Error " + error);
 
             }
+
+            averageError /= epoch;
+
+            System.out.println("Epoch " + (i+1) + " Average Error " + averageError);
 
         }
 
