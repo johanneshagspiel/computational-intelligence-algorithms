@@ -29,9 +29,9 @@ public class Perceptron {
             tempResult += weightArray[i]*inputArray[i];
         }
 
-        tempResult -= this.threshold;
+        //tempResult -= this.threshold;
 
-        if (tempResult >= 0)
+        if (tempResult >= threshold)
         {
             return 1;
         }
@@ -52,11 +52,7 @@ public class Perceptron {
         }
 
         for (int i = 0; i < this.weightArray.length; i++) {
-
-            if(weightArray[i] >= 0 || (weightArray[i] <= 0 & error > 0))
-            {
                 weightArray[i] += alpha*error*inputArray[i];
-            }
         }
     }
 
