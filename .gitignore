@@ -4,4 +4,6 @@ QLearning/bin/**
 QLearning/.idea/**
 ACO/bin/**
 ACO/.idea/**
+CI_Assignment_3/.idea/**
+CI_Assignment_3/out/**
 *.iml
