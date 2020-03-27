@@ -22,8 +22,14 @@ public class Perceptron {
 //        weightArray[1] = -0.1;
     }
 
-    public double activation(int[] inputArray)
+    public double activation(double[] inputArray)
     {
+        double tempResult = preprocess(inputArray);
+
+        return activationFunction.evaluate(tempResult, threshold);
+    }
+
+    public double preprocess(double[] inputArray) {
         assert inputArray.length == this.weightArray.length;
 
         double tempResult = 0;
@@ -31,11 +37,10 @@ public class Perceptron {
         for (int i = 0; i < weightArray.length; i++) {
             tempResult += weightArray[i]*inputArray[i];
         }
-
-        return activationFunction.evaluate(tempResult, threshold);
+        return tempResult;
     }
 
-    public void weightTraining(int[] inputArray, double result, int desiredResult, double alpha)
+    public void weightTraining(double[] inputArray, double result, int desiredResult, double alpha)
     {
         assert inputArray.length == this.weightArray.length;
 
@@ -53,7 +58,7 @@ public class Perceptron {
         threshold -= alpha*error;
     }
 
-    public void run(int[][] inputArray, int[] desiredResultArray, int epoch, double alpha)
+    public void run(double[][] inputArray, int[] desiredResultArray, int epoch, double alpha)
     {
         assert this.weightArray.length == desiredResultArray.length;
         assert this.weightArray.length == inputArray[0].length;
