@@ -1,7 +1,6 @@
 package ActivationFunctions;
 
-public class StepFunction implements ActivationFunction
-{
+public class StepFunction implements ActivationFunction {
     @Override
     public double evaluate(double result, double threshold) {
 

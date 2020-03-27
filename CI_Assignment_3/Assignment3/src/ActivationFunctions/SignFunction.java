@@ -11,7 +11,6 @@ public class SignFunction implements ActivationFunction {
         else {
             return -1.0;
         }
-
     }
 
     @Override

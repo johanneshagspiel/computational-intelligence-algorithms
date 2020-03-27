@@ -10,6 +10,6 @@ public class SigmoidFunction implements ActivationFunction {
 
     @Override
     public double getDerivative(double result, double threshold) {
-        return 0;
+        return (evaluate(result, threshold))*(1-(evaluate(result, threshold)));
     }
 }
