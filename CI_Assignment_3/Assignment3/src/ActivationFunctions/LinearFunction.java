@@ -9,6 +9,6 @@ public class LinearFunction implements ActivationFunction {
 
     @Override
     public double getDerivative(double result, double threshold) {
-        return 0;
+        return 1.0;
     }
 }
