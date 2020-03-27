@@ -1,3 +1,5 @@
+import ActivationFunctions.StepFunction;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -22,7 +24,7 @@ public class Main {
         int epoch = 5;
         double alpha = 0.1;
 
-	    Perceptron test = new Perceptron(inputArray[0].length);
+	    Perceptron test = new Perceptron(inputArray[0].length, new StepFunction());
 
 	    test.run(inputArray, desiredResultArray, epoch, alpha);
 

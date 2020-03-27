@@ -1,11 +1,13 @@
-import java.util.Random;
+import ActivationFunctions.ActivationFunction;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Perceptron {
     double[] weightArray;
     double threshold;
+    ActivationFunction activationFunction;
 
-    Perceptron(int size)
+    Perceptron(int size, ActivationFunction activationFunction)
     {
         weightArray = new double[size];
         for (int i = 0; i < size; i++) {
@@ -13,13 +15,14 @@ public class Perceptron {
         }
 
         threshold = ThreadLocalRandom.current().nextDouble(-0.5, 0.5);
+        this.activationFunction = activationFunction;
 
 //        threshold = 0.19999999999999998;
 //        weightArray[0] = 0.3;
 //        weightArray[1] = -0.1;
     }
 
-    public int activation(int[] inputArray)
+    public double activation(int[] inputArray)
     {
         assert inputArray.length == this.weightArray.length;
 
@@ -29,22 +32,14 @@ public class Perceptron {
             tempResult += weightArray[i]*inputArray[i];
         }
 
-        //tempResult -= this.threshold;
-
-        if (tempResult >= threshold)
-        {
-            return 1;
-        }
-        else {
-            return 0;
-        }
+        return activationFunction.evaluate(tempResult, threshold);
     }
 
-    public void weightTraining(int[] inputArray, int result, int desiredResult, double alpha)
+    public void weightTraining(int[] inputArray, double result, int desiredResult, double alpha)
     {
         assert inputArray.length == this.weightArray.length;
 
-        int error = desiredResult - result;
+        double error = desiredResult - result;
 
         if (error == 0)
         {
@@ -54,6 +49,8 @@ public class Perceptron {
         for (int i = 0; i < this.weightArray.length; i++) {
                 weightArray[i] += alpha*error*inputArray[i];
         }
+
+        threshold += alpha*error;
     }
 
     public void run(int[][] inputArray, int[] desiredResultArray, int epoch, double alpha)
@@ -68,8 +65,8 @@ public class Perceptron {
 
             for (int iteration = 0; iteration < inputArray.length; iteration++) {
 
-                int result = activation(inputArray[iteration]);
-                int error = desiredResultArray[iteration] - result;
+                double result = activation(inputArray[iteration]);
+                double error = desiredResultArray[iteration] - result;
                 averageError += error;
 
                 weightTraining(inputArray[iteration], result, desiredResultArray[iteration], alpha);
@@ -84,5 +81,13 @@ public class Perceptron {
 
         }
 
+    }
+
+    public void setActivationFunction(ActivationFunction activationFunction) {
+        this.activationFunction = activationFunction;
+    }
+
+    public ActivationFunction getActivationFunction() {
+        return this.activationFunction;
     }
 }
