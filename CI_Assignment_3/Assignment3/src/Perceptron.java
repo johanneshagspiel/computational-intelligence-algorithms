@@ -50,7 +50,7 @@ public class Perceptron {
                 weightArray[i] += alpha*error*inputArray[i];
         }
 
-        threshold += alpha*error;
+        threshold -= alpha*error;
     }
 
     public void run(int[][] inputArray, int[] desiredResultArray, int epoch, double alpha)
