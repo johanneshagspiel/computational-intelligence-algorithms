@@ -128,7 +128,7 @@ public class MultiLayer {
                 backPropagate(res, desiredResultArray[j], alpha);
             }
             double avgEpochErr = epocherror/inputArray.length;
-            double epsilon = 0.00001;
+            double epsilon = 0.0001;
             System.out.println("Total average error of epoch " + i + ": " + avgEpochErr); //show the average error it made on objects this epoch
             if (i == 0) firsterror = avgEpochErr;
             if (Math.abs(prevError - avgEpochErr) <= epsilon
