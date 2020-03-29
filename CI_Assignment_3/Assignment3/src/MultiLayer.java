@@ -114,6 +114,8 @@ public class MultiLayer {
     public void run(int epoch, double alpha, double[][] inputArray, int[][] desiredResultArray) {
         assert inputArray.length == desiredResultArray.length;
         double firsterror = -1; //store the error of the first round, mainly so we can see how well it trained
+        double prevprevError = -1;
+        double prevError = -1;
         for (int i = 0; i < epoch; i++) {
             double epocherror = 0;
             for (int j = 0; j < inputArray.length; j++) {
@@ -125,8 +127,16 @@ public class MultiLayer {
                 epocherror += totalerror/res[res.length - 1].length; //add this error to the total error made in this epoch
                 backPropagate(res, desiredResultArray[j], alpha);
             }
-            System.out.println("Total average error of epoch " + i + ": " + epocherror/inputArray.length); //show the average error it made on objects this epoch
-            if (i == 0) firsterror = epocherror/inputArray.length;
+            double avgEpochErr = epocherror/inputArray.length;
+            double epsilon = 0.00001;
+            System.out.println("Total average error of epoch " + i + ": " + avgEpochErr); //show the average error it made on objects this epoch
+            if (i == 0) firsterror = avgEpochErr;
+            if (Math.abs(prevError - avgEpochErr) <= epsilon
+                    && Math.abs(prevprevError - prevError) <= epsilon
+                    && Math.abs(prevprevError - avgEpochErr) <= epsilon) //if there's barely been any change in the past 2 rounds, we're probably done
+                break;
+            prevprevError = prevError;
+            prevError = epocherror/inputArray.length;
         }
         System.out.println("We started at " + firsterror);
     }
