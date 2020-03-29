@@ -80,6 +80,7 @@ public class MultiLayer {
     }
 
     public void run(int epoch, double alpha, double[][] inputArray, int[][] desiredResultArray) {
+        assert inputArray.length == desiredResultArray.length;
         double firsterror = -1;
         for (int i = 0; i < epoch; i++) {
             double epocherror = 0;
@@ -97,5 +98,21 @@ public class MultiLayer {
             if (i == 0) firsterror = epocherror/inputArray.length;
         }
         System.out.println("We started at " + firsterror);
+    }
+
+    public void test(double[][] input, int[][] labels) {
+        assert input.length == labels.length;
+        double[][] res;
+        int errors = 0;
+        for (int i = 0; i < input.length; i++) {
+            res = process(input[i]);
+            assert res[res.length - 1].length == labels[i].length;
+            int maxidx = 0;
+            for (int j = 1; j < res[res.length - 1].length; j++) {
+                if (res[res.length - 1][j] > res[res.length - 1][maxidx]) maxidx = j;
+            }
+            if (labels[i][maxidx] != 1) errors++;
+        }
+        System.out.println((1.0 * errors) / labels.length);
     }
 }
