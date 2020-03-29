@@ -5,7 +5,7 @@ public class SigmoidFunction implements ActivationFunction {
     @Override
     public double evaluate(double result, double threshold) {
 
-        return (1 / (1 + Math.exp((-1)*result)));
+        return (1 / (1 + Math.exp(threshold - result)));
     }
 
     @Override
