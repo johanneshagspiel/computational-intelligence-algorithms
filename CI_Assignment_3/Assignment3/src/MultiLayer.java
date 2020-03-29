@@ -1,7 +1,5 @@
 import ActivationFunctions.ActivationFunction;
 
-import java.util.Arrays;
-
 public class MultiLayer {
 
     //We use a lot of arrays of arrays, which are usually not 2d-arrays.
@@ -17,6 +15,15 @@ public class MultiLayer {
     int outputs;
     ActivationFunction activationFunction;
 
+    /**
+     * Constructor for our multilayer perceptron. Creates the packaging object and
+     *      fills the neurons array with perceptrons.
+     * @param hl  the number of hidden layers our MLP will have
+     * @param npl the number of perceptrons we will put in each hidden layer
+     * @param i   the number of input features we should expect
+     * @param o   the number of outputs we should give
+     * @param a   the activation function our perceptrons should use
+     */
     public MultiLayer(int hl, int npl, int i, int o, ActivationFunction a) {
         hiddenlayers = hl;
         neuronsperlayer = npl;
@@ -34,6 +41,11 @@ public class MultiLayer {
         for (int j = 0; j < o; j++) neurons[hl][j] = new Perceptron(npl, a); //output neurons receive from last hidden layer (i.e. also need #neurons/layer inputs)
     }
 
+    /**
+     * Runs an input vector through the network and returns the output and all intermediate results.
+     * @param input the input vector we should work on
+     * @return the output vector we got by doing this
+     */
     public double[][] process(double[] input) {
         double[][] res = new double[hiddenlayers + 2][]; //this will represent all values perceptrons take on, including input "neurons"
         res[0] = input;
@@ -50,6 +62,12 @@ public class MultiLayer {
         return res;
     }
 
+    /**
+     * Uses the result of processing a vector to update all weights.
+     * @param results the result of calling process with an appropriate input vector
+     * @param labels  the labels that belong to the objects portrayed by said input vector
+     * @param alpha   the learning rate we use to update the weights of the perceptrons
+     */
     public void backPropagate(double[][] results, int[] labels, double alpha) {
         assert results.length == hiddenlayers + 2;
         assert results[hiddenlayers+1].length == outputs;
@@ -61,17 +79,24 @@ public class MultiLayer {
         prevs[hiddenlayers] = new double[outputs];
         for (int i = 0; i < outputs; i++) {
             Perceptron current = neurons[hiddenlayers][i];
-            prevs[hiddenlayers][i] = (labels[i] - ((int) (results[hiddenlayers+1][i] + 0.5))) * activationFunction.getDerivative(current.preprocess(results[hiddenlayers]), current.threshold);
+            //the change in error over the first weights is equal to the error (first term)
+            //multiplied by the derivative of the activation function (second term)
+            //multiplied by the previous result (not shown, cannot be reused)
+            prevs[hiddenlayers][i] = (labels[i] - ((int) (results[hiddenlayers+1][i] + 0.5))) //we round our result to either 1 or 0; if it already classifies class a as a, we don't need to change those weights
+                    * activationFunction.getDerivative(current.preprocess(results[hiddenlayers]), current.threshold);
         }
         for (int i = hiddenlayers - 1; i >= 0; i--) {
             prevs[i] = new double[neuronsperlayer];
             for (int j = 0; j < neuronsperlayer; j++) {
                 prevs[i][j] = 0;
                 Perceptron current = neurons[i][j];
-                for (int k = 0; k < prevs[i+1].length; k++) prevs[i][j] += prevs[i+1][k] * neurons[i+1][k].weightArray[j] * activationFunction.getDerivative(current.preprocess(results[i]), current.threshold);
+                for (int k = 0; k < prevs[i+1].length; k++) //sum over all outputs
+                    prevs[i][j] += prevs[i+1][k] //part we alredy had
+                            * neurons[i+1][k].weightArray[j] //chain rule to get to our current perceptron ( * weight * derivative of activation)
+                            * activationFunction.getDerivative(current.preprocess(results[i]), current.threshold);
             }
         }
-        for (int i = 0; i <= hiddenlayers; i++) { //all layers, including ouput, have to have their weights updated
+        for (int i = 0; i <= hiddenlayers; i++) { //all layers, including ouput, have to have their weights (and threshold updated)
             for (int j = 0; j < neurons[i].length; j++) {
                 for (int k = 0; k < neurons[i][j].weightArray.length; k++) neurons[i][j].weightArray[k] += alpha * prevs[i][j] * results[i][k];
                 neurons[i][j].threshold -= alpha * prevs[i][j];
@@ -79,40 +104,54 @@ public class MultiLayer {
         }
     }
 
+    /**
+     * Shortcut method to train the MLP on an array of inputs and outputs.
+     * @param epoch              the number of times we should train our network with all given objects
+     * @param alpha              the learning rate we use to update the weights
+     * @param inputArray         the array of feature vectors we should train on
+     * @param desiredResultArray the array of label vectors belonging to the input objects
+     */
     public void run(int epoch, double alpha, double[][] inputArray, int[][] desiredResultArray) {
         assert inputArray.length == desiredResultArray.length;
-        double firsterror = -1;
+        double firsterror = -1; //store the error of the first round, mainly so we can see how well it trained
         for (int i = 0; i < epoch; i++) {
             double epocherror = 0;
             for (int j = 0; j < inputArray.length; j++) {
                 double[][] res = process(inputArray[j]);
                 double totalerror = 0;
-//                System.out.println(Arrays.toString(res[res.length-1]));
-//                System.out.println(Arrays.toString(desiredResultArray[j]));
-                for (int k = 0; k < res[res.length - 1].length; k++) totalerror += Math.abs(((int) (res[res.length - 1][k] + 0.5)) - desiredResultArray[j][k]);
-                System.out.println("Average error of iteration " + j + ": " + totalerror/res[res.length - 1].length);
-                epocherror += totalerror/res[res.length - 1].length;
+                for (int k = 0; k < res[res.length - 1].length; k++) //for each class, check if our MLP says this object is in it
+                    totalerror += Math.abs(((int) (res[res.length - 1][k] + 0.5)) - desiredResultArray[j][k]); //does it say it wrong? Error++
+                System.out.println("Average error of iteration " + j + ": " + totalerror/res[res.length - 1].length); //show relative error
+                epocherror += totalerror/res[res.length - 1].length; //add this error to the total error made in this epoch
                 backPropagate(res, desiredResultArray[j], alpha);
             }
-            System.out.println("Total error of epoch " + i + ": " + epocherror/inputArray.length);
+            System.out.println("Total average error of epoch " + i + ": " + epocherror/inputArray.length); //show the average error it made on objects this epoch
             if (i == 0) firsterror = epocherror/inputArray.length;
         }
         System.out.println("We started at " + firsterror);
     }
 
+    /**
+     * Shortcut method to test the MLP on an array of inputs and outputs.
+     * @param input  the array of feature vectors we should test our MLP on
+     * @param labels the labels that should be given after processing the respective inputs
+     */
     public void test(double[][] input, int[][] labels) {
         assert input.length == labels.length;
         double[][] res;
         int errors = 0;
-        for (int i = 0; i < input.length; i++) {
+        for (int i = 0; i < input.length; i++) { //process all inputs and see how well we can predict classes
+            //difference with error calculation in run is that we now reduce the classification from yes/no for each class to one class;
+            //the one with the highest probability
             res = process(input[i]);
             assert res[res.length - 1].length == labels[i].length;
             int maxidx = 0;
-            for (int j = 1; j < res[res.length - 1].length; j++) {
-                if (res[res.length - 1][j] > res[res.length - 1][maxidx]) maxidx = j;
+            for (int j = 1; j < res[res.length - 1].length; j++) { //start at 1 since 0 is default
+                if (res[res.length - 1][j] > res[res.length - 1][maxidx])
+                    maxidx = j; //higher probability? This is now predicted class
             }
-            if (labels[i][maxidx] != 1) errors++;
+            if (labels[i][maxidx] != 1) errors++; //wrong? Error++
         }
-        System.out.println((1.0 * errors) / labels.length);
+        System.out.println((1.0 * errors) / labels.length); //make error double i.o. int and divide by number of classified cases for relative error
     }
 }
