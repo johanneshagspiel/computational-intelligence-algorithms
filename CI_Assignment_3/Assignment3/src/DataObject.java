@@ -10,6 +10,12 @@ public class DataObject {
     double[][] validationFeatures, testFeatures, trainFeatures;
     int[][] validationLabels, testLabels, trainLabels;
 
+    /**
+     * These arrays store the training data divided into batches and their respective labels.
+     */
+    double[][][] batches;
+    int[][][] batchlabels;
+
 
     /**
      * Instantiates a Data Object and divides the feature vectors and their respective labels into three groups.
@@ -17,9 +23,10 @@ public class DataObject {
      * @param labelFile        the path to the file from which to read the labels belonging to said feature vectors
      * @param validatefraction the fraction of the data that should be reserved for validation
      * @param testfraction     the fraction of the data that should be put aside for testing
+     * @param numperbatch      the number of items that should be in each batch
      * @throws IOException this will be thrown if something goes wrong while reading the files
      */
-    public DataObject(String featureFile, String labelFile, double validatefraction, double testfraction) throws IOException {
+    public DataObject(String featureFile, String labelFile, double validatefraction, double testfraction, int numperbatch) throws IOException {
         int numfeatures = 10; //parsing becomes less efficient if we don't have access to these parameters,
         int numclasses = 7; //so we decided to add them in here for now. Some of our parsing code is also
                             //not 100% flexible for other cases, but given we know the format, this is the best way.
@@ -85,13 +92,16 @@ public class DataObject {
             trainFeatures[i] = train.get(i);
             trainLabels[i] = trainL.get(i);
         }
+
+        batchify(numperbatch);
     }
 
     /**
      * Redivides the objects in the test and train sets, possibly with a different division.
      * @param testfraction the percentage of objects to put in the test set rather than in the train set.
+     * @param numperbatch  the number of items that should go in each batch
      */
-    public void reshuffle(double testfraction) {
+    public void reshuffle(double testfraction, int numperbatch) {
         //once we have used the training and testing data, we can call this method to reshuffle the arrays
         //this way, we can use different input combinations to optimise our parameters, without touching the validation set
         List<double[]> splitdata = Arrays.asList(testFeatures);
@@ -125,6 +135,27 @@ public class DataObject {
         for (int i = 0; i < train.size(); i++) {
             trainFeatures[i] = train.get(i);
             trainLabels[i] = trainL.get(i);
+        }
+
+        batchify(numperbatch);
+    }
+
+    /**
+     * Divide training data into batches.
+     * @param numperbatch the number of feature vectors we put in each batch
+     */
+    public void batchify(int numperbatch) {
+        int numbatches = (int) Math.ceil((1.0 * trainFeatures.length) / numperbatch);
+        batches = new double[numbatches][][];
+        batchlabels = new int[numbatches][][];
+        for (int i = 0; i < numbatches; i++) {
+            int size = Math.min(numperbatch, (trainFeatures.length - i*numperbatch));
+            batches[i] = new double[size][];
+            batchlabels[i] = new int[size][];
+        }
+        for (int i = 0; i < trainFeatures.length; i++) {
+            batches[i/numperbatch][i%numperbatch] = trainFeatures[i];
+            batchlabels[i/numperbatch][i%numperbatch] = trainLabels[i];
         }
     }
 }
