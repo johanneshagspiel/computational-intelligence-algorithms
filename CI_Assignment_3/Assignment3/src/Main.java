@@ -1,3 +1,4 @@
+import ActivationFunctions.HyberbolicTangent;
 import ActivationFunctions.SigmoidFunction;
 
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class Main {
 
         //we now instantiate the object with the right data, and run it
 
-        MultiLayer ml = new MultiLayer(1, 8, batchedInput[0][0].length, batchedInputLabels[0][0].length, new SigmoidFunction());
+        MultiLayer ml = new MultiLayer(1, 8, batchedInput[0][0].length, batchedInputLabels[0][0].length, new HyberbolicTangent());
         ml.run(epoch, alpha, batchedInput, batchedInputLabels, beta);
 
         //after training, run a test using test data to see how we did
