@@ -33,10 +33,37 @@ public class Main {
         //we now instantiate the object with the right data, and run it
 
         MultiLayer ml = new MultiLayer(1, 8, batchedInput[0][0].length, batchedInputLabels[0][0].length, new HyberbolicTangent());
-        ml.run(epoch, alpha, batchedInput, batchedInputLabels, beta);
+
+        int betaYes = 0;
+
+        MultiLayer[] mlHyperArray = new MultiLayer[100];
+
+        for (int i = 0; i < 100; i++) {
+            mlHyperArray[i] = new MultiLayer(1, 8, batchedInput[0][0].length, batchedInputLabels[0][0].length, new HyberbolicTangent());
+        }
+
+        for (int i = 0; i < 100; i++) {
+            betaYes += mlHyperArray[i].getEpochsToConvergence(beta, alpha, batchedInput, batchedInputLabels, Math.pow(10, -1), true);
+        }
+        betaYes /= 100;
+
+        int betaNo = 0;
+
+        MultiLayer[] mlSigmoidArray = new MultiLayer[100];
+
+        for (int i = 0; i < 100; i++) {
+            mlSigmoidArray[i] = new MultiLayer(1, 8, batchedInput[0][0].length, batchedInputLabels[0][0].length, new HyberbolicTangent());
+        }
+
+        for (int i = 0; i < 100; i++) {
+            betaNo += mlSigmoidArray[i].getEpochsToConvergence(0, alpha, batchedInput, batchedInputLabels, Math.pow(10, -1), true);
+        }
+        betaNo /= 100;
+
+        System.out.println(betaYes + " " + betaNo);
 
         //after training, run a test using test data to see how we did
-        ml.test(testArray, desiredTestResult);
+        //ml.test(testArray, desiredTestResult);
 
     }
 }
