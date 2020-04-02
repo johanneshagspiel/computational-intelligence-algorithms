@@ -7,10 +7,33 @@ public class DataObject {
     /**
      * These arrays store the groups of feature vectors and their respective labels.
      */
+    double[][] inputFeatures;
     double[][] validationFeatures, testFeatures, trainFeatures;
     int[][] validationLabels, testLabels, trainLabels;
 
 
+    public DataObject(String featureFile) throws IOException{
+        int numfeatures = 10; //parsing becomes less efficient if we don't have access to these parameters,
+        int numclasses = 7; //so we decided to add them in here for now. Some of our parsing code is also
+        //not 100% flexible for other cases, but given we know the format, this is the best way.
+        List<double[]> rawdata = new ArrayList<>();
+        Scanner sc = new Scanner(new File(featureFile));
+        Scanner sc1;
+        while (sc.hasNextLine()) {
+            sc1 = new Scanner(sc.nextLine());
+            sc1.useDelimiter(","); //comma-separated lines, 1 line = 1 feature vector
+            double[] features = new double[numfeatures]; //create fv
+            int i = 0;
+            while (sc1.hasNextDouble()) features[i++] = sc1.nextDouble(); //fill fv with given features
+
+            rawdata.add(features); //add this object to list of objects
+        }
+        inputFeatures = new double[rawdata.size()][];
+
+        for(int i = 0; i < rawdata.size(); i++){
+            inputFeatures[i] = rawdata.get(i);
+        }
+    }
     /**
      * Instantiates a Data Object and divides the feature vectors and their respective labels into three groups.
      * @param featureFile      the path to the file from which to read the feature vectors

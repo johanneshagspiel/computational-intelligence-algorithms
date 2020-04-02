@@ -1,5 +1,9 @@
 import ActivationFunctions.ActivationFunction;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+
 public class MultiLayer {
 
     //We use a lot of arrays of arrays, which are usually not 2d-arrays.
@@ -57,7 +61,7 @@ public class MultiLayer {
         }
         res[hiddenlayers+1] = new double[outputs];
         for (int i = 0; i < outputs; i++) {
-            res[hiddenlayers+1][i] = neurons[hiddenlayers][i].activation(res[hiddenlayers]); //use output of last hidden layer to find output array
+            res[hiddenlayers + 1][i] = neurons[hiddenlayers][i].activation(res[hiddenlayers]); //use output of last hidden layer to find output array
         }
         return res;
     }
@@ -163,5 +167,29 @@ public class MultiLayer {
             if (labels[i][maxidx] != 1) errors++; //wrong? Error++
         }
         System.out.println((1.0 * errors) / labels.length); //make error double i.o. int and divide by number of classified cases for relative error
+    }
+
+    public void output(double[][] input) throws IOException {
+        double[][] res;
+        int[] outputs = new int[input.length];
+        for (int i = 0; i < input.length; i++) { //process all inputs and see how well we can predict classes
+            //difference with error calculation in run is that we now reduce the classification from yes/no for each class to one class;
+            //the one with the highest probability
+            res = process(input[i]);
+            int maxidx = 0;
+//            System.out.println(Arrays.toString(res[res.length-1]));
+//            System.out.println(res[res.length-1].length);
+//            System.out.println(res.length);
+            for (int j = 0; j < res[res.length - 1].length; j++) { //start at 1 since 0 is default
+                if (res[res.length - 1][j] > res[res.length - 1][maxidx])
+                    maxidx = j; //higher probability? This is now predicted class
+            }
+            outputs[i] = maxidx + 1;
+        }
+        FileWriter writer = new FileWriter("Group_8_classes.txt");
+        for(int i : outputs) {
+            writer.write(i + ",");
+        }
+        writer.close();
     }
 }
