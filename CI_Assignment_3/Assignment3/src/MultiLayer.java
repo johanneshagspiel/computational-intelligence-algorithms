@@ -19,9 +19,13 @@ public class MultiLayer {
     int outputs;
     ActivationFunction activationFunction;
 
+    double[][][] currentBatchGradients;
+    double[][][] prevBatchGradients;
+
     /**
      * Constructor for our multilayer perceptron. Creates the packaging object and
-     *      fills the neurons array with perceptrons.
+     * fills the neurons array with perceptrons.
+     *
      * @param hl  the number of hidden layers our MLP will have
      * @param npl the number of perceptrons we will put in each hidden layer
      * @param i   the number of input features we should expect
@@ -36,17 +40,37 @@ public class MultiLayer {
         activationFunction = a;
         neurons = new Perceptron[hl + 1][]; //we need to store all hidden layers and the output layer. The input layer is given.
         neurons[0] = new Perceptron[npl];
-        for (int j = 0; j < npl; j++) neurons[0][j] = new Perceptron(i, a); //all inputs feed into the first hidden layer, so this layer needs #inputs inputs for each perceptron
+        for (int j = 0; j < npl; j++)
+            neurons[0][j] = new Perceptron(i, a); //all inputs feed into the first hidden layer, so this layer needs #inputs inputs for each perceptron
         for (int j = 1; j < hl; j++) {
             neurons[j] = new Perceptron[npl];
-            for (int k = 0; k < npl; k++) neurons[j][k] = new Perceptron(npl, a); //all other hidden layers receive input from previous layer (i.e. have #neurons/layer inputs)
+            for (int k = 0; k < npl; k++)
+                neurons[j][k] = new Perceptron(npl, a); //all other hidden layers receive input from previous layer (i.e. have #neurons/layer inputs)
         }
         neurons[hl] = new Perceptron[o];
-        for (int j = 0; j < o; j++) neurons[hl][j] = new Perceptron(npl, a); //output neurons receive from last hidden layer (i.e. also need #neurons/layer inputs)
+        for (int j = 0; j < o; j++)
+            neurons[hl][j] = new Perceptron(npl, a); //output neurons receive from last hidden layer (i.e. also need #neurons/layer inputs)
+
+        initCurBatchGrads();
+        prevBatchGradients = currentBatchGradients; //trust me, I'm an engineer **
+    }
+
+    /**
+     * Method used to set the gradients of the current batch to 0 to be able to redetermine them.
+     */
+    public void initCurBatchGrads() {
+        currentBatchGradients = new double[neurons.length][][]; //for each layer...
+        for (int i = 0; i < neurons.length; i++) {
+            currentBatchGradients[i] = new double[neurons[i].length][]; //...we give each neuron...
+            for (int j = 0; j < neurons[i].length; j++)
+                //...an array for all weights, including the threshold
+                currentBatchGradients[i][j] = new double[neurons[i][j].weightArray.length + 1];
+        }
     }
 
     /**
      * Runs an input vector through the network and returns the output and all intermediate results.
+     *
      * @param input the input vector we should work on
      * @return the output vector we got by doing this
      */
@@ -54,12 +78,12 @@ public class MultiLayer {
         double[][] res = new double[hiddenlayers + 2][]; //this will represent all values perceptrons take on, including input "neurons"
         res[0] = input;
         for (int i = 0; i < hiddenlayers; i++) {
-            res[i+1] = new double[neuronsperlayer];
+            res[i + 1] = new double[neuronsperlayer];
             for (int j = 0; j < neuronsperlayer; j++) {
-                res[i+1][j] = neurons[i][j].activation(res[i]); //for each hidden layer, calculate new result from prev result
+                res[i + 1][j] = neurons[i][j].activation(res[i]); //for each hidden layer, calculate new result from prev result
             }
         }
-        res[hiddenlayers+1] = new double[outputs];
+        res[hiddenlayers + 1] = new double[outputs];
         for (int i = 0; i < outputs; i++) {
             res[hiddenlayers + 1][i] = neurons[hiddenlayers][i].activation(res[hiddenlayers]); //use output of last hidden layer to find output array
         }
@@ -68,15 +92,15 @@ public class MultiLayer {
 
     /**
      * Uses the result of processing a vector to update all weights.
+     *
      * @param results the result of calling process with an appropriate input vector
      * @param labels  the labels that belong to the objects portrayed by said input vector
-     * @param alpha   the learning rate we use to update the weights of the perceptrons
      */
-    public void backPropagate(double[][] results, int[] labels, double alpha) {
+    public void backPropagate(double[][] results, int[] labels) {
         assert results.length == hiddenlayers + 2;
-        assert results[hiddenlayers+1].length == outputs;
+        assert results[hiddenlayers + 1].length == outputs;
         assert results[0].length == inputs;
-        for (int i = 1; i < hiddenlayers+1; i++) assert results[i].length == neuronsperlayer;
+        for (int i = 1; i < hiddenlayers + 1; i++) assert results[i].length == neuronsperlayer;
         assert labels.length == outputs;
 
         double[][] prevs = new double[hiddenlayers + 1][]; //store all chained values
@@ -86,7 +110,7 @@ public class MultiLayer {
             //the change in error over the first weights is equal to the error (first term)
             //multiplied by the derivative of the activation function (second term)
             //multiplied by the previous result (not shown, cannot be reused)
-            prevs[hiddenlayers][i] = (labels[i] - ((int) (results[hiddenlayers+1][i] + 0.5))) //we round our result to either 1 or 0; if it already classifies class a as a, we don't need to change those weights
+            prevs[hiddenlayers][i] = (labels[i] - ((int) (results[hiddenlayers + 1][i] + 0.5))) //we round our result to either 1 or 0; if it already classifies class a as a, we don't need to change those weights
                     * activationFunction.getDerivative(current.preprocess(results[hiddenlayers]), current.threshold);
         }
         for (int i = hiddenlayers - 1; i >= 0; i--) {
@@ -94,59 +118,105 @@ public class MultiLayer {
             for (int j = 0; j < neuronsperlayer; j++) {
                 prevs[i][j] = 0;
                 Perceptron current = neurons[i][j];
-                for (int k = 0; k < prevs[i+1].length; k++) //sum over all outputs
-                    prevs[i][j] += prevs[i+1][k] //part we alredy had
-                            * neurons[i+1][k].weightArray[j] //chain rule to get to our current perceptron ( * weight * derivative of activation)
+                for (int k = 0; k < prevs[i + 1].length; k++) //sum over all outputs
+                    prevs[i][j] += prevs[i + 1][k] //part we alredy had
+                            * neurons[i + 1][k].weightArray[j] //chain rule to get to our current perceptron ( * weight * derivative of activation)
                             * activationFunction.getDerivative(current.preprocess(results[i]), current.threshold);
             }
         }
         for (int i = 0; i <= hiddenlayers; i++) { //all layers, including ouput, have to have their weights (and threshold updated)
             for (int j = 0; j < neurons[i].length; j++) {
-                for (int k = 0; k < neurons[i][j].weightArray.length; k++) neurons[i][j].weightArray[k] += alpha * prevs[i][j] * results[i][k];
-                neurons[i][j].threshold -= alpha * prevs[i][j];
+                for (int k = 0; k < neurons[i][j].weightArray.length; k++)
+                    currentBatchGradients[i][j][k] += prevs[i][j] * results[i][k];
+                currentBatchGradients[i][j][neurons[i][j].weightArray.length] += prevs[i][j];
+            }
+        }
+    }
+
+    /**
+     * Perform the actual updates on the weights and thresholds.
+     *
+     * @param alpha the learning rate
+     * @param beta  the momentum factor
+     */
+    public void doGradientDescent(double alpha, double beta) {
+        for (int i = 0; i <= hiddenlayers; i++) { //all layers, including ouput, have to have their weights (and threshold) updated
+            for (int j = 0; j < neurons[i].length; j++) {
+                Perceptron current = neurons[i][j];
+                for (int k = 0; k < current.weightArray.length; k++)
+                    current.weightArray[k] += alpha * (prevBatchGradients[i][j][k] = beta * prevBatchGradients[i][j][k] + (1 - beta) * currentBatchGradients[i][j][k]);
+                current.threshold -= alpha * (prevBatchGradients[i][j][current.weightArray.length] = beta * prevBatchGradients[i][j][current.weightArray.length] + (1 - beta) * currentBatchGradients[i][j][current.weightArray.length]);
+                //threshold has inverse effect, so -= i.o. +=
             }
         }
     }
 
     /**
      * Shortcut method to train the MLP on an array of inputs and outputs.
-     * @param epoch              the number of times we should train our network with all given objects
-     * @param alpha              the learning rate we use to update the weights
-     * @param inputArray         the array of feature vectors we should train on
-     * @param desiredResultArray the array of label vectors belonging to the input objects
+     *
+     * @param epoch       the number of times we should train our network with all given objects
+     * @param alpha       the learning rate we use to update the weights
+     * @param batches     the array of batches, with each batch being an array of feature vectors we should train on
+     * @param batchLabels the array of labels belonging to each batch
+     * @param beta        the momentum factor
      */
-    public void run(int epoch, double alpha, double[][] inputArray, int[][] desiredResultArray) {
-        assert inputArray.length == desiredResultArray.length;
+    public void run(int epoch, double alpha, double[][][] batches, int[][][] batchLabels, double beta, boolean heuristics) {
+        assert batches.length == batchLabels.length;
         double firsterror = -1; //store the error of the first round, mainly so we can see how well it trained
         double prevprevError = -1;
         double prevError = -1;
+
         for (int i = 0; i < epoch; i++) {
-            double epocherror = 0;
-            for (int j = 0; j < inputArray.length; j++) {
-                double[][] res = process(inputArray[j]);
-                double totalerror = 0;
-                for (int k = 0; k < res[res.length - 1].length; k++) //for each class, check if our MLP says this object is in it
-                    totalerror += Math.abs(((int) (res[res.length - 1][k] + 0.5)) - desiredResultArray[j][k]); //does it say it wrong? Error++
-                System.out.println("Average error of iteration " + j + ": " + totalerror/res[res.length - 1].length); //show relative error
-                epocherror += totalerror/res[res.length - 1].length; //add this error to the total error made in this epoch
-                backPropagate(res, desiredResultArray[j], alpha);
+            double epochErr = 0;
+            for (int j = 0; j < batches.length; j++) {
+                double batchError = 0;
+                initCurBatchGrads(); //besides it just generally being better to have this at the start of the current batch,
+                //it also makes sure it no longer shares a reference with prevBatchGradients (** told you to trust me)
+                double[][] inputArray = batches[j];
+                int[][] desiredResultArray = batchLabels[j];
+                assert inputArray.length == desiredResultArray.length;
+                for (int k = 0; k < inputArray.length; k++) {
+                    double[][] res = process(inputArray[k]);
+                    double totalerror = 0;
+                    for (int l = 0; l < res[res.length - 1].length; l++) //for each class, check if our MLP says this object is in it
+                        totalerror += Math.abs(((int) (res[res.length - 1][l] + 0.5)) - desiredResultArray[k][l]); //does it say it wrong? Error++
+                    System.out.println("Average error of iteration " + k + ": " + totalerror / res[res.length - 1].length); //show relative error
+                    batchError += totalerror / res[res.length - 1].length; //add this error to the total error made in this epoch
+                    backPropagate(res, desiredResultArray[k]);
+                }
+                double avgBatchErr = batchError / inputArray.length;
+                System.out.println("Total average error of batch " + j + ": " + avgBatchErr); //show the average error it made on objects in this batch
+                doGradientDescent(alpha, beta);
+                epochErr += avgBatchErr;
             }
-            double avgEpochErr = epocherror/inputArray.length;
-            double epsilon = 0.0001;
-            System.out.println("Total average error of epoch " + i + ": " + avgEpochErr); //show the average error it made on objects this epoch
+            double avgEpochErr = epochErr / batches.length;
+            double epsilon = 0.00025;
             if (i == 0) firsterror = avgEpochErr;
-            if (Math.abs(prevError - avgEpochErr) <= epsilon
-                    && Math.abs(prevprevError - prevError) <= epsilon
-                    && Math.abs(prevprevError - avgEpochErr) <= epsilon) //if there's barely been any change in the past 2 rounds, we're probably done
+            System.out.println("Total average error op epoch " + i + ": " + avgEpochErr);
+            if (Math.abs(prevError - avgEpochErr) <= epsilon && Math.abs(prevprevError - prevError) <= epsilon && Math.abs(prevprevError - avgEpochErr) <= epsilon)
+                //if there's barely been any change in the past 2 rounds, we're probably done
+                //we chose to use error rather than gradient since we already have access to it,
+                //and because it is about as good a measure as the gradient itself
+                //(a small change in error usually means little to no change in the parameters)
                 break;
+
+            if(heuristics)
+            {
+                if((avgEpochErr*1.04) > prevError)
+                    alpha *= 0.7;
+                if((prevError*1.04) > avgEpochErr)
+                    alpha *= 1.05;
+            }
+
             prevprevError = prevError;
-            prevError = epocherror/inputArray.length;
+            prevError = avgEpochErr;
         }
         System.out.println("We started at " + firsterror);
     }
 
     /**
      * Shortcut method to test the MLP on an array of inputs and outputs.
+     *
      * @param input  the array of feature vectors we should test our MLP on
      * @param labels the labels that should be given after processing the respective inputs
      */
@@ -168,6 +238,7 @@ public class MultiLayer {
         }
         System.out.println((1.0 * errors) / labels.length); //make error double i.o. int and divide by number of classified cases for relative error
     }
+
 
     public void output(double[][] input) throws IOException {
         double[][] res;
@@ -192,4 +263,70 @@ public class MultiLayer {
         }
         writer.close();
     }
+
+
+    /**
+     * Shortcut method to train the MLP on an array of inputs and outputs.
+     *
+     * @param alpha       the learning rate we use to update the weights
+     * @param batches     the array of batches, with each batch being an array of feature vectors we should train on
+     * @param batchLabels the array of labels belonging to each batch
+     * @param beta        the momentum factor
+     */
+    public int getEpochsToConvergence(double beta, double alpha, double[][][] batches, int[][][] batchLabels, double convergence, boolean heuristics) {
+
+        assert batches.length == batchLabels.length;
+        double firsterror = Double.MAX_VALUE; //store the error of the first round, mainly so we can see how well it trained
+        double prevprevError = -1;
+        double prevError = -1;
+
+        int epoch = 0;
+
+        while(firsterror > convergence) {
+
+            double epochErr = 0;
+            for (int j = 0; j < batches.length; j++) {
+                double batchError = 0;
+                initCurBatchGrads(); //besides it just generally being better to have this at the start of the current batch,
+                //it also makes sure it no longer shares a reference with prevBatchGradients (** told you to trust me)
+                double[][] inputArray = batches[j];
+                int[][] desiredResultArray = batchLabels[j];
+                assert inputArray.length == desiredResultArray.length;
+                for (int k = 0; k < inputArray.length; k++) {
+                    double[][] res = process(inputArray[k]);
+                    double totalerror = 0;
+                    for (int l = 0; l < res[res.length - 1].length; l++) //for each class, check if our MLP says this object is in it
+                        totalerror += Math.abs(((int) (res[res.length - 1][l] + 0.5)) - desiredResultArray[k][l]); //does it say it wrong? Error++
+                    batchError += totalerror / res[res.length - 1].length; //add this error to the total error made in this epoch
+                    backPropagate(res, desiredResultArray[k]);
+                }
+                double avgBatchErr = batchError / inputArray.length;
+                doGradientDescent(alpha, beta);
+                epochErr += avgBatchErr;
+            }
+            double avgEpochErr = epochErr / batches.length;
+            double epsilon = 0.00025;
+            if (epoch == 0) firsterror = avgEpochErr;
+            if (Math.abs(prevError - avgEpochErr) <= epsilon && Math.abs(prevprevError - prevError) <= epsilon && Math.abs(prevprevError - avgEpochErr) <= epsilon)
+                //if there's barely been any change in the past 2 rounds, we're probably done
+                //we chose to use error rather than gradient since we already have access to it,
+                //and because it is about as good a measure as the gradient itself
+                //(a small change in error usually means little to no change in the parameters)
+                break;
+
+            if(heuristics)
+            {
+                if((avgEpochErr*1.04) > prevError)
+                    alpha *= 0.7;
+                if((prevError*1.04) > avgEpochErr)
+                    alpha *= 1.05;
+            }
+
+            prevprevError = prevError;
+            prevError = avgEpochErr;
+            epoch++;
+        }
+        return epoch;
+    }
 }
+
