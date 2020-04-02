@@ -45,7 +45,7 @@ public class Main {
 
 
         //after training, run a test using test data to see how we did
-        ml.run(epoch, alpha, batchedInput, batchedInputLabels, beta, true);
+        ml.run(epoch, alpha, batchedInput, batchedInputLabels, beta, false);
         ml.test(testArray, desiredTestResult);
 
     }
