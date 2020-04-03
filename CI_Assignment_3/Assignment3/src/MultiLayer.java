@@ -249,7 +249,7 @@ public class MultiLayer {
 
         assert input.length == labels.length;
         double[][] res;
-        int[][] confusionMatrix = new int[7][2];
+        int[][] confusionMatrix = new int[7][7];
         int[] result = new int[input.length];
 
         for (int i = 0; i < input.length; i++) { //process all inputs and see how well we can predict classes
@@ -273,8 +273,7 @@ public class MultiLayer {
                     if (labels[i][j] == 1) actual = j;
                 }
 
-                confusionMatrix[actual][0] ++;
-                confusionMatrix[prediction][1] ++;
+                confusionMatrix[actual][prediction] ++;
             }
         return confusionMatrix;
     }

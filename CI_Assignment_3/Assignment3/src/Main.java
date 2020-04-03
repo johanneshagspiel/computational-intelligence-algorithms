@@ -36,14 +36,14 @@ public class Main {
         desiredTestResult = data.testLabels;
 
         MultiLayer ml = new MultiLayer(1, 8, batchedInput[0][0].length, batchedInputLabels[0][0].length, new SigmoidFunction());
-        System.out.println(ml.run(epoch, alpha, batchedInput, batchedInputLabels, beta, false));
+        ml.run(epoch, alpha, batchedInput, batchedInputLabels, beta, false);
         int[][] test = ml.confusionMatrix(testArray, desiredTestResult);
 
         for (int i = 0; i < 7; i++) {
-                System.out.println("Actual class " + i + " " + test[i][0]);
-                System.out.println("Predicted class " + i + " " + test[i][1]);
+            for (int j = 0; j < 7; j++) {
+                //System.out.println("Actual class " + (i + 1) + " and predicted class " + (j + 1) + " has cases: " +  test[i][j]);
+                System.out.println((i + 1) + " " + (j + 1) + " " + test[i][j]);
             }
         }
-        
     }
-
+}
