@@ -37,7 +37,13 @@ public class Main {
 
         MultiLayer ml = new MultiLayer(1, 8, batchedInput[0][0].length, batchedInputLabels[0][0].length, new SigmoidFunction());
         System.out.println(ml.run(epoch, alpha, batchedInput, batchedInputLabels, beta, false));
-        System.out.println(ml.test(testArray, desiredTestResult));
+        int[][] test = ml.confusionMatrix(testArray, desiredTestResult);
+
+        for (int i = 0; i < 7; i++) {
+                System.out.println("Actual class " + i + " " + test[i][0]);
+                System.out.println("Predicted class " + i + " " + test[i][1]);
+            }
+        }
         
     }
-}
+

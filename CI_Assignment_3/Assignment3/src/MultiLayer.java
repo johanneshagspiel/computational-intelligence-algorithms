@@ -245,6 +245,40 @@ public class MultiLayer {
     }
 
 
+    public int[][] confusionMatrix(double[][] input, int[][] labels) {
+
+        assert input.length == labels.length;
+        double[][] res;
+        int[][] confusionMatrix = new int[7][2];
+        int[] result = new int[input.length];
+
+        for (int i = 0; i < input.length; i++) { //process all inputs and see how well we can predict classes
+            //difference with error calculation in run is that we now reduce the classification from yes/no for each class to one class;
+            //the one with the highest probability
+            res = process(input[i]);
+            assert res[res.length - 1].length == labels[i].length;
+            int maxidx = 0;
+            for (int j = 1; j < res[res.length - 1].length; j++) { //start at 1 since 0 is default
+                if (res[res.length - 1][j] > res[res.length - 1][maxidx])
+                    maxidx = j; //higher probability? This is now predicted class
+            }
+            result[i] = maxidx;
+        }
+
+        for (int i = 0; i < result.length; i++) {
+                int prediction = result[i];
+                int actual = 0;
+
+                for (int j = 0; j < labels[i].length; j++) {
+                    if (labels[i][j] == 1) actual = j;
+                }
+
+                confusionMatrix[actual][0] ++;
+                confusionMatrix[prediction][1] ++;
+            }
+        return confusionMatrix;
+    }
+
     public void output(double[][] input) throws IOException {
         double[][] res;
         int[] outputs = new int[input.length];
