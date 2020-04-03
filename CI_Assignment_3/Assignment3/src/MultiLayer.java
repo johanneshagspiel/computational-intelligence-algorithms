@@ -160,7 +160,7 @@ public class MultiLayer {
      * @param batchLabels the array of labels belonging to each batch
      * @param beta        the momentum factor
      */
-    public void run(int epoch, double alpha, double[][][] batches, int[][][] batchLabels, double beta, boolean heuristics) {
+    public double run(int epoch, double alpha, double[][][] batches, int[][][] batchLabels, double beta, boolean heuristics) {
         assert batches.length == batchLabels.length;
         double firsterror = -1; //store the error of the first round, mainly so we can see how well it trained
         double prevprevError = -1;
@@ -180,25 +180,28 @@ public class MultiLayer {
                     double totalerror = 0;
                     for (int l = 0; l < res[res.length - 1].length; l++) //for each class, check if our MLP says this object is in it
                         totalerror += Math.abs(((int) (res[res.length - 1][l] + 0.5)) - desiredResultArray[k][l]); //does it say it wrong? Error++
-                    System.out.println("Average error of iteration " + k + ": " + totalerror / res[res.length - 1].length); //show relative error
+                    //System.out.println("Average error of iteration " + k + ": " + totalerror / res[res.length - 1].length); //show relative error
                     batchError += totalerror / res[res.length - 1].length; //add this error to the total error made in this epoch
                     backPropagate(res, desiredResultArray[k]);
                 }
                 double avgBatchErr = batchError / inputArray.length;
-                System.out.println("Total average error of batch " + j + ": " + avgBatchErr); //show the average error it made on objects in this batch
+                //System.out.println("Total average error of batch " + j + ": " + avgBatchErr); //show the average error it made on objects in this batch
                 doGradientDescent(alpha, beta);
                 epochErr += avgBatchErr;
             }
             double avgEpochErr = epochErr / batches.length;
             double epsilon = 0.00025;
             if (i == 0) firsterror = avgEpochErr;
-            System.out.println("Total average error op epoch " + i + ": " + avgEpochErr);
-            if (Math.abs(prevError - avgEpochErr) <= epsilon && Math.abs(prevprevError - prevError) <= epsilon && Math.abs(prevprevError - avgEpochErr) <= epsilon)
+            //System.out.println("Total average error op epoch " + i + ": " + avgEpochErr);
+            if (Math.abs(prevError - avgEpochErr) <= epsilon && Math.abs(prevprevError - prevError) <= epsilon && Math.abs(prevprevError - avgEpochErr) <= epsilon) {
+                prevprevError = prevError;
+                prevError = avgEpochErr;
+                break;
+            }
                 //if there's barely been any change in the past 2 rounds, we're probably done
                 //we chose to use error rather than gradient since we already have access to it,
                 //and because it is about as good a measure as the gradient itself
                 //(a small change in error usually means little to no change in the parameters)
-                break;
 
             if(heuristics)
             {
@@ -211,7 +214,8 @@ public class MultiLayer {
             prevprevError = prevError;
             prevError = avgEpochErr;
         }
-        System.out.println("We started at " + firsterror);
+        //System.out.println("We started at " + firsterror + " and ended at " + prevError);
+        return prevError;
     }
 
     /**
@@ -220,7 +224,7 @@ public class MultiLayer {
      * @param input  the array of feature vectors we should test our MLP on
      * @param labels the labels that should be given after processing the respective inputs
      */
-    public void test(double[][] input, int[][] labels) {
+    public double test(double[][] input, int[][] labels) {
         assert input.length == labels.length;
         double[][] res;
         int errors = 0;
@@ -236,7 +240,8 @@ public class MultiLayer {
             }
             if (labels[i][maxidx] != 1) errors++; //wrong? Error++
         }
-        System.out.println((1.0 * errors) / labels.length); //make error double i.o. int and divide by number of classified cases for relative error
+        //System.out.println("Testing error " + (1.0 * errors) / labels.length); //make error double i.o. int and divide by number of classified cases for relative error
+        return  (1.0 * errors) / labels.length;
     }
 
 

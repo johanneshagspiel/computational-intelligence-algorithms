@@ -14,10 +14,8 @@ public class Main {
 
         //we first set the hyperparameters
         int epoch = 500;
-        double alpha = 0.2;
-        double beta = 0.9;
-
-        //then, we declare the input and desired output of the algorithm
+        double alpha = 0.1;
+        double beta = 0.4;
 
         double[][][] batchedInput;
         int[][][] batchedInputLabels;
@@ -32,21 +30,14 @@ public class Main {
             return;
         }
 
-
         batchedInput = data.batches;
         batchedInputLabels = data.batchlabels;
         testArray = data.testFeatures;
         desiredTestResult = data.testLabels;
 
-
-        //we now instantiate the object with the right data, and run it
-
-        MultiLayer ml = new MultiLayer(1, 8, batchedInput[0][0].length, batchedInputLabels[0][0].length, new HyberbolicTangent());
-
-
-        //after training, run a test using test data to see how we did
-        ml.run(epoch, alpha, batchedInput, batchedInputLabels, beta, false);
-        ml.test(testArray, desiredTestResult);
-
+        MultiLayer ml = new MultiLayer(1, 8, batchedInput[0][0].length, batchedInputLabels[0][0].length, new SigmoidFunction());
+        System.out.println(ml.run(epoch, alpha, batchedInput, batchedInputLabels, beta, false));
+        System.out.println(ml.test(testArray, desiredTestResult));
+        
     }
 }
