@@ -159,6 +159,9 @@ public class MultiLayer {
      * @param batches     the array of batches, with each batch being an array of feature vectors we should train on
      * @param batchLabels the array of labels belonging to each batch
      * @param beta        the momentum factor
+     * @param heuristics  turns the usage of heuristics on or off
+     *
+     * @return            returns the training error
      */
     public double run(int epoch, double alpha, double[][][] batches, int[][][] batchLabels, double beta, boolean heuristics) {
         assert batches.length == batchLabels.length;
@@ -223,6 +226,8 @@ public class MultiLayer {
      *
      * @param input  the array of feature vectors we should test our MLP on
      * @param labels the labels that should be given after processing the respective inputs
+     *
+     * @return      returns the testing error
      */
     public double test(double[][] input, int[][] labels) {
         assert input.length == labels.length;
@@ -244,12 +249,19 @@ public class MultiLayer {
         return  (1.0 * errors) / labels.length;
     }
 
-
+    /**
+     * Shortcut method to create a confusion matrix.
+     *
+     * @param input  the array of feature vectors we should test our MLP on
+     * @param labels the labels that should be given after processing the respective inputs
+     *
+     * @return      returns the confusion matrix
+     */
     public int[][] confusionMatrix(double[][] input, int[][] labels) {
 
         assert input.length == labels.length;
         double[][] res;
-        int[][] confusionMatrix = new int[7][7];
+        int[][] confusionMatrix = new int[7][7]; //we know there are only 7 classes
         int[] result = new int[input.length];
 
         for (int i = 0; i < input.length; i++) { //process all inputs and see how well we can predict classes
@@ -270,14 +282,20 @@ public class MultiLayer {
                 int actual = 0;
 
                 for (int j = 0; j < labels[i].length; j++) {
-                    if (labels[i][j] == 1) actual = j;
+                    if (labels[i][j] == 1) actual = j; //get which class this instance actually belongs to
                 }
 
-                confusionMatrix[actual][prediction] ++;
+                confusionMatrix[actual][prediction] ++; //increase the entry in the confusion matrix
             }
         return confusionMatrix;
     }
 
+
+    /**
+     * Shortcut method to create a csv file with only the predicted classes.
+     *
+     * @param input  the feature vectors which we want to determine the associated classes of
+     */
     public void output(double[][] input) throws IOException {
         double[][] res;
         int[] outputs = new int[input.length];
@@ -304,12 +322,17 @@ public class MultiLayer {
 
 
     /**
-     * Shortcut method to train the MLP on an array of inputs and outputs.
+     * Shortcut method to return the number of epochs necessary to train a mlp until it reaches a certain convergence criteria
      *
+     * @param beta        the momentum factor
      * @param alpha       the learning rate we use to update the weights
      * @param batches     the array of batches, with each batch being an array of feature vectors we should train on
      * @param batchLabels the array of labels belonging to each batch
-     * @param beta        the momentum factor
+     * @param convergence the convergence criteria
+     * @param heuristics  option to turn the usage of heuristics on or off
+     *
+     * @return            the number of epochs needed to train the mlp to reach a certain convergence criteria
+     *
      */
     public int getEpochsToConvergence(double beta, double alpha, double[][][] batches, int[][][] batchLabels, double convergence, boolean heuristics) {
 
