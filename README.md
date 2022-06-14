@@ -43,4 +43,4 @@ These computational intelligence algorithms are published under the MIT licence,
 
 ## References
 
-The logo was taken from the website of the [Computational Intelligence Society](https://cis.ieee.org/images/files/slideshow/04mci04-cover1.jpg). 
+The image in the logo was taken from the website of the [Computational Intelligence Society](https://cis.ieee.org/images/files/slideshow/04mci04-cover1.jpg). 
