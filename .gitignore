@@ -1,10 +1,10 @@
 bin/**
 .idea/**
-QLearning/bin/**
-QLearning/.idea/**
-ACO/bin/**
-ACO/.idea/**
-CI_Assignment_3/.idea/**
-CI_Assignment_3/out/**
+algorithms/q_learning/bin/**
+algorithms/q_learning/.idea/**
+algorithms/ant_colony_optimization/bin/**
+algorithms/ant_colony_optimization/.idea/**
+algorithms/artificial_neural_network/.idea/**
+algorithms/artificial_neural_network/out/**
 *.iml
 *.ipynb
