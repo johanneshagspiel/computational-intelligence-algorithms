@@ -7,4 +7,3 @@ algorithms/ant_colony_optimization/.idea/**
 algorithms/artificial_neural_network/.idea/**
 algorithms/artificial_neural_network/out/**
 *.iml
-*.ipynb
